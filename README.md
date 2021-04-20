@@ -123,7 +123,7 @@ When the powers are integers or rational numbers, which is usually the case, it 
 
 While [ian-r-rose/buckinghampy](https://github.com/ian-r-rose/buckinghampy) uses [SymPy](https://www.sympy.org/en/index.html) for symbolic manipulation of the powers of the parameters, to retain these types, we simply rely on the ability of the `LU` decomposition in the [LinearAlgebra](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/) standard package to retain the `Rational` eltype of the matrices.
 
-Associated with that, we do not use the [`LinearAlgebra.nullspace`](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/#LinearAlgebra.nullspace) since it is based on the `QR` decomposition, which changes the eltype to `Float64`. Instead, we compute the null space directly from the `U` part of the `LU` decomposition.
+Associated with that, we do not use the [`LinearAlgebra.nullspace`](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/#LinearAlgebra.nullspace) since it is based on the `SVD` decomposition, which changes the eltype to `Float64`. Instead, we compute the null space directly from the `U` part of the `LU` decomposition.
 
 ## License
 
