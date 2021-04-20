@@ -10,6 +10,7 @@ T = u"𝐓"
 τ = u"s"
 θ = u"NoDims"
 v = u"m/s"
+α = 2
 
 @testset "Test" begin
     # Set parameters
@@ -32,4 +33,14 @@ v = u"m/s"
     @addparameters v
     @test UnitfulBuckinghamPi._ubp_pars == [:ℓ, :g, :m, :τ, :θ, :v]
     @test UnitfulBuckinghamPi._ubp_vals == [u"m", 9.8u"m/s^2", u"g", u"s", u"NoDims", u"m/s"]
+    Π = UnitfulBuckinghamPi.pi_groups()
+    @test length(Π) == 3
+
+    @addparameters α
+    Π = UnitfulBuckinghamPi.pi_groups()
+    @test length(Π) == 4
+
+    @setparameters
+    Π = UnitfulBuckinghamPi.pi_groups()
+    @test size(Π) == (0,)
 end
