@@ -1,14 +1,18 @@
 # UnitfulBuckinghamPi
 
-This package is for solving for the adimensional Pi groups (or Π groups) in a collection of Unitful.jl's parameters, according to the [Buckingham-Pi Theorem](https://en.wikipedia.org/wiki/Buckingham_π_theorem).
+![Main Tests Workflow Status](https://github.com/rmsrosa/UnitfulCurrencies.jl/workflows/CI/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![GitHub repo size](https://img.shields.io/github/repo-size/rmsrosa/UnitfulCurrencies.jl) ![Lifecycle Experimental](https://img.shields.io/badge/lifecycle-experimental-orange) [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 
-It is inspired by a similar package written in python: [ian-r-rose/buckinghampy](https://github.com/ian-r-rose/buckinghampy).
+This package is for solving for the adimensional Pi groups (or Π groups) in a given list of parameters, according to the [Buckingham-Pi Theorem](https://en.wikipedia.org/wiki/Buckingham_π_theorem).
+
+We use the package [Unitful.jl](https://github.com/PainterQubits/Unitful.jl) in order to facilitate the construction of the parameters and to easily handle the dimensions associated with each parameter.
+
+This package is inspired by a similar package written in python: [ian-r-rose/buckinghampy](https://github.com/ian-r-rose/buckinghampy).
 
 ## Example
 
 As a simple example, let us consider the period of a simple pendulum.
 
-We consider the *length* of the rod, the *mass* of the bob, the *acceleration of gravity*, the *angle* of the rod with the downards vertical direction, and the *period* as the relevant parameters.
+We consider the *length* of the rod, the *mass* of the bob, the *acceleration of gravity*, the *angle* of the rod with the downards vertical direction, and the *period* of the swinging pendulum as the relevant parameters.
 
 We defined these parameters as `Unitful.FreeUnits`. Except for the acceleration of gravity, which is a constant and is given a `Unitful.Quantity` value, and for the period, for which we do not associate any unit, only a dimension, just for fun.
 
