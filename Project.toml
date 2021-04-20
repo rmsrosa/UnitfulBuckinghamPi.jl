@@ -1,0 +1,8 @@
+name = "UnitfulBuckinghamPi"
+uuid = "a5a2160c-bd99-4b31-b024-0885c747111f"
+authors = ["Ricardo Rosa <rmsrosa@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
