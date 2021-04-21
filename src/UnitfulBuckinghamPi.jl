@@ -6,9 +6,9 @@ using LinearAlgebra
 
 export @setparameters, @addparameters, pi_groups
 
-_ubp_pars = Vector{Symbol}()
-_ubp_vals = Vector{Any}()
-#_ubp_vals = Vector{Unitful.Quantity, Unitful.Unitlike, Unitul.Dimensions{()}}()
+param_symbols = Vector{Symbol}()
+param_values = Vector{Any}()
+#param_values = Vector{Unitful.Quantity, Unitful.Unitlike, Unitul.Dimensions{()}}()
 
 """
     clearregister()
@@ -16,8 +16,8 @@ _ubp_vals = Vector{Any}()
 Clear the parameter register.
 """
 function clearregister()
-    intersect!(_ubp_pars, Vector{Symbol}())
-    intersect!(_ubp_vals, Vector{Any}())
+    intersect!(param_symbols, Vector{Symbol}())
+    intersect!(param_values, Vector{Any}())
 end
 
 """
@@ -26,8 +26,8 @@ end
 Add parameter symbol `x` and value `y` to the register.
 """
 function add2register(x,y)
-    push!(_ubp_pars, x)
-    push!(_ubp_vals, y)
+    push!(param_symbols, x)
+    push!(param_values, y)
 end
 
 
@@ -63,7 +63,7 @@ Display info with the list of registered parameters
 """
 function register()
     @info "Parameter(s) registered:"
-    for (n, v) in zip(_ubp_pars, _ubp_vals)
+    for (n, v) in zip(param_symbols, param_values)
         @info " $n = $v"
     end
 end
@@ -88,10 +88,10 @@ get_dims(x::Number) = get_dims(dimension(x))
 Build and return the parameter-to-dimension matrix.
 """
 function parameterdimensionmatrix()
-    params_dimensions = Set(dims[2] for p in _ubp_vals for dims in get_dims(p))
-    param_dims_dict = Dict(v => i for (i,v) in enumerate(params_dimensions))
-    pdmat = fill(0//1, length(params_dimensions), length(_ubp_vals))
-    for (j,p) in enumerate(_ubp_vals)
+    param_dimensions = Set(dims[2] for p in param_values for dims in get_dims(p))
+    param_dims_dict = Dict(v => i for (i,v) in enumerate(param_dimensions))
+    pdmat = fill(0//1, length(param_dimensions), length(param_values))
+    for (j,p) in enumerate(param_values)
         for d in get_dims(p)
             pdmat[param_dims_dict[d[2]],j] = d[3]
         end
@@ -100,7 +100,7 @@ function parameterdimensionmatrix()
 end
 
 """
-rationalnullspace(mat)
+    rationalnullspace(mat)
 
 Return a matrix whose columns span the null space of the matrix `mat`.
 
@@ -134,7 +134,7 @@ Return a vector of strings with the pi groups associated with the registered par
 function pi_groups_str()
     pdmat = parameterdimensionmatrix()
     pdmat_null = rationalnullspace(pdmat)
-    return [join(["$p^($a)" for (p,a) in zip(_ubp_pars, col) if !iszero(a)], "*") for col in eachcol(pdmat_null)]
+    return [join(["$p^($a)" for (p,a) in zip(param_symbols, col) if !iszero(a)], "*") for col in eachcol(pdmat_null)]
 end
 
 """
