@@ -179,7 +179,7 @@ function rationalnullspace(mat)
         ohv[i] = 1//1
         return ohv
     end
-    mat_lu = lu(mat)
+    mat_lu = lu(mat, check=false) 
     mat_nrows, mat_ncols = size(mat)
     mat_rank = rank(mat)
     mat_null = fill(0//1, mat_ncols, mat_ncols - mat_rank)

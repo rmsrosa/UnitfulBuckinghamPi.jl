@@ -1,6 +1,7 @@
 using Unitful
 using Test
 using UnitfulBuckinghamPi
+using LinearAlgebra
 
 # Define Unitful paramaters, which can be quantities, units or dimensions
 ℓ = u"m"
@@ -12,6 +13,11 @@ T = u"𝐓"
 v = u"m/s"
 α = 2
 s = "blah"
+
+u = u"m/s"
+ρ = u"g/m^3"
+μ = u"g/m/s"
+p = u"g/m/s^2"
 
 @testset "Test" begin
     # Set and check parameters
@@ -57,7 +63,14 @@ s = "blah"
     Π = pi_groups()
     @test size(Π) == (0,)
 
+    # Check singularity in the LU decomposition
+    @setparameters u ρ μ p
+    @test pi_groups() == [:(u ^ (-2 // 1) * ρ ^ (-1 // 1) * p ^ (1 // 1))]
+    @setparameters u ρ p μ
+    @test_throws LinearAlgebra.SingularException pi_groups()
+
     # Test errors
+    @setparameters ℓ g m τ θ
     @test_throws ArgumentError pi_groups(:NotImplemented)
     @test_throws MethodError @setparameters 1
     @test_throws ArgumentError @setparameters s
