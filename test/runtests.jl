@@ -11,36 +11,49 @@ T = u"𝐓"
 θ = u"NoDims"
 v = u"m/s"
 α = 2
+s = "blah"
 
 @testset "Test" begin
-    # Set parameters
+    # Set and check parameters
     @setparameters ℓ g m T θ
     @test UnitfulBuckinghamPi.param_symbols == [:ℓ, :g, :m, :T, :θ]
     @test UnitfulBuckinghamPi.param_values == [u"m", 9.8u"m/s^2", u"g", u"𝐓", u"NoDims"]
-    # Check parameters
-    Π = UnitfulBuckinghamPi.pi_groups_str()
+
+    # Check adimensional groups as String eltype
+    Π = pi_groups(:String)
     @test Π[1] == "ℓ^(-1//2)*g^(1//2)*T^(1//1)"
     @test Π[2] == "θ^(1//1)"
 
+    # Set and check parameters
     @setparameters ℓ g m τ θ
     @test UnitfulBuckinghamPi.param_values == [u"m", 9.8u"m/s^2", u"g", u"s", u"NoDims"]
-    Π = UnitfulBuckinghamPi.pi_groups()
+    # Check adimensional groups as Expr eltype
+    Π = pi_groups()
     @test Π[1] == :(ℓ ^ (-1 // 2) * g ^ (1 // 2) * τ ^ (1 // 1))
     @test Π[2] == :(θ ^ (1 // 1))
+    # Test evaluating expressions
     @test eval(Π[1]) ≈ 3.1304951684997055
     @test eval(Π[2]) == NoDims
 
+    # Check add parameter and check results
     @addparameters v
     @test UnitfulBuckinghamPi.param_symbols == [:ℓ, :g, :m, :τ, :θ, :v]
     @test UnitfulBuckinghamPi.param_values == [u"m", 9.8u"m/s^2", u"g", u"s", u"NoDims", u"m/s"]
-    Π = UnitfulBuckinghamPi.pi_groups()
+    Π = pi_groups(:Expr)
     @test length(Π) == 3
 
+    # Test parameter of type Number
     @addparameters α
-    Π = UnitfulBuckinghamPi.pi_groups()
+    Π = pi_groups()
     @test length(Π) == 4
 
+    # Check setting no parameters for an empty list
     @setparameters
-    Π = UnitfulBuckinghamPi.pi_groups()
+    Π = pi_groups()
     @test size(Π) == (0,)
+
+    # Test errors
+    @test_throws ArgumentError pi_groups(:NotImplemented)
+    @test_throws MethodError @setparameters 1
+    @test_throws ArgumentError @setparameters s
 end

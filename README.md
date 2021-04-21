@@ -14,9 +14,9 @@ As a simple example, let us consider the period of a simple pendulum.
 
 We consider the *length* of the rod, the *mass* of the bob, the *acceleration of gravity*, the *angle* of the rod with the downards vertical direction, and the *period* of the swinging pendulum as the relevant parameters.
 
-We defined these parameters as `Unitful.FreeUnits`. Except for the acceleration of gravity, which is a constant and is given a `Unitful.Quantity` value, and for the period, for which we do not associate any unit, only a dimension, just for fun.
+We defined these parameters as `Unitful.FreeUnits`. Except for the acceleration of gravity, which is a constant and is given as a `Unitful.Quantity` value, and for the period, for which we do not associate any unit, only a dimension, just for fun.
 
-To tell `UnitfulBuckinghamPi` that these are the parameters to consider, we use the macro `@setparameters`. Then, we find the adimensional Π groups with the function `pi_groups_str()`, which returns the groups as a vector of strings. Or we can use `pi_groups()`, which returns a vector of expressions.
+To tell `UnitfulBuckinghamPi` that these are the parameters to consider, we use the macro `@setparameters`. Then, we find the adimensional Π groups with the function `pi_groups()`, which returns the groups as a vector. It can either be a vector of strings, with `pi_groups(:String)`, or of expressions, with `pi_groups(:Expr)`, which is the default.
 
 ```julia
 julia> using Unitful
@@ -46,12 +46,12 @@ julia> @setparameters ℓ g m T θ
 [ Info:  T = 𝐓
 [ Info:  θ = NoDims
 
-julia> Π_str = pi_groups_str()
+julia> Π_str = pi_groups(:String)
 2-element Vector{String}:
  "ℓ^(-1//2)*g^(1//2)*T^(1//1)"
  "θ^(1//1)"
 
-julia> Π = pi_groups()
+julia> Π = pi_groups(:Expr)
 2-element Vector{Expr}:
  :(ℓ ^ (-1 // 2) * g ^ (1 // 2) * T ^ (1 // 1))
  :(θ ^ (1 // 1)) 
@@ -89,7 +89,7 @@ NoDims
 
 As expected, both are adimensional.
 
-If there are more than one set of groups which are not independent, the solver will just pick one combination from the basis obtained for the null space.
+Adimensional groups are not unique. Even if you find a single group, any power of it is also adimensional. If there is more than one adimensional group, then you can linearly combine them to find many others. They are associated to the span of the null space of a "parameter-to-dimension" matrix. The solver here will just pick one combination from the basis obtained for the null space.
 
 Finally, one can add parameters to a given set of registered parameters and solve for the new set.
 
@@ -115,7 +115,7 @@ julia> pi_groups()
 
 ## The internals
 
-The [Buckingham-Pi Theorem](https://en.wikipedia.org/wiki/Buckingham_π_theorem) relies on the [Rank-nulity Theorem](https://en.wikipedia.org/wiki/Rank–nullity_theorem). A parameter-to-dimension matrix is composed, in which the columns correpond to the parameters and the rows to the collection of dimensions involved in the parameters. Each element in row i and column j correspond to the power of the dimension i in the parameter j.
+The [Buckingham-Pi Theorem](https://en.wikipedia.org/wiki/Buckingham_π_theorem) relies on the [Rank-nulity Theorem](https://en.wikipedia.org/wiki/Rank–nullity_theorem). A "parameter-to-dimension" matrix is composed, in which the columns correpond to the parameters and the rows to the collection of dimensions involved in the parameters. Each element in row i and column j correspond to the power of the dimension i in the parameter j.
 
 The number of adimensional groups is the dimension of the kernel of the matrix. And the adimensional groups are obtained from a basis of the null space.
 
