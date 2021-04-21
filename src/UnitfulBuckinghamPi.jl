@@ -40,8 +40,11 @@ function addparameter(x,y)
         throw(ArgumentError(
             "Parameter should be either a Unitful.Quantity, Unitful.FreeUnits,"
             * "Unitful.Dimensions or Number"))
-    push!(param_symbols, x)
-    push!(param_values, y)
+    
+    if x ∉ UnitfulBuckinghamPi.param_symbols
+        push!(param_symbols, x)
+        push!(param_values, y)
+    end
 end
 
 """

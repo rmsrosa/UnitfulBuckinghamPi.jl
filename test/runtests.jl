@@ -44,8 +44,13 @@ s = "blah"
 
     # Test parameter of type Number
     @addparameters α
+    @test length(UnitfulBuckinghamPi.param_symbols) == 7
     Π = pi_groups()
     @test length(Π) == 4
+
+    # Avoid adding duplicates
+    @addparameters α
+    @test length(UnitfulBuckinghamPi.param_symbols) == 7
 
     # Check setting no parameters for an empty list
     @setparameters
