@@ -176,6 +176,9 @@ Output is a `NamedTuple`, say `F=lu_pq(A)`, whose fields are
 
 Factorization yields the identity `F.L * F.U == A[F.p, F.q]`.
 
+More information about LU factorization with full pivoting, see [^GolubVanLoan1996],
+[^TrefethenBauIII1997].
+
 # Examples
 
 ```jldoctest
@@ -260,14 +263,15 @@ true
 
 # References:
 
-* Gene H. Golub, Charles F. Van Loan, Matrix Computations, Johns Hopkins 
+[^GolubVanLoan1996]: Gene H. Golub, Charles F. Van Loan, "Matrix Computations", Johns Hopkins 
 Studies in Mathematical Sciences, 3rd Edition, 1996.
-* Lloyd N. Trefethen, David Bau III, Numerical Linear Algebra.
+
+[^TrefethenBauIII1997]: Lloyd N. Trefethen, David Bau III, "Numerical Linear Algebra",
 First Edition, SIAM, 1997.
 
 """
 function lu_pq(A::AbstractMatrix{T}) where T <: Number
-    tol = T <: Rational ? 0 : min(size(A)...)*eps(real(float(one(T))))
+    tol = T <: Rational ? 0//1 : min(size(A)...)*eps(real(float(one(T))))
     U = copy(A)
     (n,m) = size(U)
     L = diagm(ones(eltype(A),n))
@@ -275,7 +279,7 @@ function lu_pq(A::AbstractMatrix{T}) where T <: Number
     q = collect(1:m)
     for k =1:min(n,m)
         i,j = k-1 .+ Tuple(argmax(abs.(U[k:end,k:end])))
-        abs(U[i,j]) < tol && break
+        abs(U[i,j]) > tol || break
         if i > k
             p[k], p[i] = p[i], p[k]
             U[k,:], U[i,:] = U[i,:], U[k,:]
@@ -285,7 +289,7 @@ function lu_pq(A::AbstractMatrix{T}) where T <: Number
             U[:,k], U[:,j] = U[:,j], U[:,k]
         end
         τ = U[k+1:end,k] / U[k,k]
-        U[k+1:end,k:end] -=  τ .* U[k,k:end]'
+        U[k+1:end,k:end] -=  τ * U[k,k:end]'
         if i > k
             τ[1], τ[i-k] = τ[i-k], τ[1]
         end
