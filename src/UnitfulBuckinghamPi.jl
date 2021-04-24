@@ -298,29 +298,29 @@ function lu_pq(A::AbstractMatrix{T}) where T <: Number
 end
 
 """
-    rationalnullspace(mat)
+    lu_nullspace(mat)
 
 Return a matrix whose columns span the null space of the matrix `mat`.
 
 If `mat` has full rank, the returned matrix has zero columns.
 
-The algorithm uses the LU decomposition in LinearAlgebra since
-this decomposition retains the Rational eltype of the matrix.
+The algorithm uses the implementation [`lu_pq`](@ref) of the LU decomposition
+with full pivoting. This decomposition not only retains the Rational
+eltype of the matrix, but also handles singular matrix.
 """
-function rationalnullspace(mat)
+function lu_nullspace(mat)
     function ivec(n,i)
-        ohv = fill(0//1, n)
-        ohv[i] = 1//1
+        ohv = fill(zero(eltype(mat)), n)
+        ohv[i] = one(eltype(mat))
         return ohv
     end
-    # mat_lu = lu(mat, check=false) 
     mat_lu = lu_pq(mat)
     mat_nrows, mat_ncols = size(mat)
     mat_rank = rank(mat)
-    mat_null = fill(0//1, mat_ncols, mat_ncols - mat_rank)
+    mat_null = fill(zero(eltype(mat)), mat_ncols, mat_ncols - mat_rank)
     for j in 1:mat_ncols-mat_rank
         mat_null[1:mat_rank,j] = -(mat_lu.U[:,1:mat_rank] \ (mat_lu.U * ivec(mat_ncols, mat_rank+j)))
-        mat_null[mat_rank+j,j] = 1//1
+        mat_null[mat_rank+j,j] = one(eltype(mat))
     end
     return mat_null, mat_lu.q
 end
@@ -352,23 +352,23 @@ julia> @setparameters ℓ g m τ θ
 
 julia> pi_groups()
 2-element Vector{Expr}:
- :(ℓ ^ (-1 // 2) * g ^ (1 // 2) * τ ^ (1 // 1))
+ :(g ^ (1 // 2) * ℓ ^ (-1 // 2) * τ ^ (1 // 1))
  :(θ ^ (1 // 1))
 
 julia> pi_groups(:Expr)
-2-element Vector{Expr}:
- :(ℓ ^ (-1 // 2) * g ^ (1 // 2) * τ ^ (1 // 1))
- :(θ ^ (1 // 1))
+ 2-element Vector{Expr}:
+  :(g ^ (1 // 2) * ℓ ^ (-1 // 2) * τ ^ (1 // 1))
+  :(θ ^ (1 // 1))
 
 julia> pi_groups(:String)
 2-element Vector{String}:
- "ℓ^(-1//2)*g^(1//2)*τ^(1//1)"
- "θ^(1//1)"
+  "g^(1//2)*ℓ^(-1//2)*τ^(1//1)"
+  "θ^(1//1)"
 ```
 """
 function pi_groups(type::Symbol = :Expr)
     pdmat = parameterdimensionmatrix()
-    pdmat_null, q = rationalnullspace(pdmat)
+    pdmat_null, q = lu_nullspace(pdmat)
     groups = [join(["$p^($a)" for (p,a) in zip(param_symbols[q], col) if !iszero(a)], "*") for col in eachcol(pdmat_null)]
     type == :String && return groups
     type == :Expr && return [Meta.parse(group) for group in groups]
