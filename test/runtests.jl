@@ -32,7 +32,8 @@ p = u"g/m/s^2"
 
     # Set and check parameters
     @setparameters ℓ g m τ θ
-    @test UnitfulBuckinghamPi.param_values == [u"m", 9.8u"m/s^2", u"g", u"s", u"NoDims"]
+    @test UnitfulBuckinghamPi.param_values == 
+        [u"m", 9.8u"m/s^2", u"g", u"s", u"NoDims"]
     # Check adimensional groups as Expr eltype
     Π = pi_groups()
     @test Π[1] == :(g ^ (1 // 2) * ℓ ^ (-1 // 2) * τ ^ (1 // 1))
@@ -44,7 +45,8 @@ p = u"g/m/s^2"
     # Check add parameter and check results
     @addparameters v
     @test UnitfulBuckinghamPi.param_symbols == [:ℓ, :g, :m, :τ, :θ, :v]
-    @test UnitfulBuckinghamPi.param_values == [u"m", 9.8u"m/s^2", u"g", u"s", u"NoDims", u"m/s"]
+    @test UnitfulBuckinghamPi.param_values == 
+        [u"m", 9.8u"m/s^2", u"g", u"s", u"NoDims", u"m/s"]
     Π = pi_groups(:Expr)
     @test length(Π) == 3
 
@@ -65,9 +67,11 @@ p = u"g/m/s^2"
 
     # Check singularity in the LU decomposition
     @setparameters u ρ μ p
-    @test pi_groups() == [:(ρ ^ (1 // 2) * p ^ (-1 // 2) * u ^ (1 // 1))]
+    @test pi_groups() == 
+        [:(ρ ^ (1 // 2) * p ^ (-1 // 2) * u ^ (1 // 1))]
     @setparameters u ρ p μ
-    @test_throws LinearAlgebra.SingularException pi_groups()
+    @test pi_groups() == 
+        [:(ρ ^ (1 // 2) * p ^ (-1 // 2) * u ^ (1 // 1))]
 
     # Test errors
     @setparameters ℓ g m τ θ
@@ -102,4 +106,12 @@ end
     A = [1 1; typemax(Int64)//2 1]
     L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
     @test L * U == A[p, q]
+
+    A = convert.(Rational,[-1 0 -2 -1; 0 1 1 1; 1 -3 -1 -1])
+    L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
+    @test U == [
+        -3//1 -1//1 -1//1 1//1;
+        0//1  -2//1 -1//1 -1//1;
+        0//1  0//1  1//3  0//1
+    ]
 end

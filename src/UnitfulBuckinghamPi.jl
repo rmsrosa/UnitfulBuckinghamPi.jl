@@ -267,16 +267,13 @@ First Edition, SIAM, 1997.
 
 """
 function lu_pq(A::AbstractMatrix{T}) where T <: Number
-    if T <: Integer
-        A = float(A)
-    end
     tol = T <: Rational ? 0 : min(size(A)...)*eps(real(float(one(T))))
     U = copy(A)
     (n,m) = size(U)
     L = diagm(ones(eltype(A),n))
     p = collect(1:n)
     q = collect(1:m)
-    for k =1:min(n,m)-1
+    for k =1:min(n,m)
         i,j = k-1 .+ Tuple(argmax(abs.(U[k:end,k:end])))
         abs(U[i,j]) < tol && break
         if i > k
@@ -296,6 +293,8 @@ function lu_pq(A::AbstractMatrix{T}) where T <: Number
     end
     return (L=L, U=U, p=p, q=q)
 end
+lu_pq(A::AbstractMatrix{<:Integer}) = lu_pq(float(A))
+lu_pq(A::AbstractMatrix{Complex{<:Integer}}) = lu_pq(convert.(float(Complex{Int}),A))
 
 """
     lu_nullspace(mat)
