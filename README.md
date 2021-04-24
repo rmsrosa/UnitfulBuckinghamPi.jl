@@ -8,7 +8,7 @@ We use the package [Unitful.jl](https://github.com/PainterQubits/Unitful.jl) in 
 
 This package is inspired by a similar package written in python: [ian-r-rose/buckinghampy](https://github.com/ian-r-rose/buckinghampy).
 
-## Example
+## Examples
 
 Let us consider a couple of examples.
 
