@@ -293,8 +293,8 @@ function lu_pq(A::AbstractMatrix{T}) where T <: Number
     end
     return (L=L, U=U, p=p, q=q)
 end
-lu_pq(A::AbstractMatrix{<:Integer}) = lu_pq(float(A))
-lu_pq(A::AbstractMatrix{Complex{<:Integer}}) = lu_pq(convert.(float(Complex{Int}),A))
+lu_pq(A::AbstractMatrix{T}) where T <: Integer = lu_pq(float(A))
+lu_pq(A::AbstractMatrix{Complex{T}}) where T <: Integer = lu_pq(convert.(float(Complex{Int}),A))
 
 """
     lu_nullspace(mat)
