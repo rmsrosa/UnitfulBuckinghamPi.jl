@@ -176,8 +176,11 @@ Output is a `NamedTuple`, say `F=lu_pq(A)`, whose fields are
 
 Factorization yields the identity `F.L * F.U == A[F.p, F.q]`.
 
-More information about LU factorization with full pivoting, see [^GolubVanLoan1996],
-[^TrefethenBauIII1997].
+More information about LU factorization with full pivoting,
+see [^GolubVanLoan1996], [^TrefethenBauIII1997].
+
+The choice of the tolerance, however, is beyond me, at the moment,
+but see [^issue8859] and [^pinv]
 
 # Examples
 
@@ -269,6 +272,9 @@ Studies in Mathematical Sciences, 3rd Edition, 1996.
 [^TrefethenBauIII1997]: Lloyd N. Trefethen, David Bau III, "Numerical Linear Algebra",
 First Edition, SIAM, 1997.
 
+[^issue8859]: Issue 8859, "Fix least squares", [https://github.com/JuliaLang/julia/pull/8859](https://github.com/JuliaLang/julia/pull/8859)
+
+[^pinv]: [LinearAlgebra.pinv](https://github.com/JuliaLang/julia/blob/master/stdlib/LinearAlgebra/src/dense.jl#L1362)
 """
 function lu_pq(A::AbstractMatrix{T}) where T <: Number
     tol = T <: Rational ? 0//1 : min(size(A)...)*eps(real(float(one(T))))
@@ -278,11 +284,12 @@ function lu_pq(A::AbstractMatrix{T}) where T <: Number
     p = collect(1:n)
     q = collect(1:m)
     for k =1:min(n,m)
-        i,j = k-1 .+ Tuple(argmax(abs.(U[k:end,k:end])))
+        i, j = k-1 .+ Tuple(argmax(abs.(U[k:end,k:end])))
         abs(U[i,j]) > tol || break
         if i > k
             p[k], p[i] = p[i], p[k]
             U[k,:], U[i,:] = U[i,:], U[k,:]
+            L[k,1:k-1], L[i,1:k-1] = L[i,1:k-1], L[k,1:k-1]
         end
         if j > k
             q[k], q[j] = q[j], q[k]
@@ -290,9 +297,6 @@ function lu_pq(A::AbstractMatrix{T}) where T <: Number
         end
         τ = U[k+1:end,k] / U[k,k]
         U[k+1:end,k:end] -=  τ * U[k,k:end]'
-        if i > k
-            τ[1], τ[i-k] = τ[i-k], τ[1]
-        end
         L[k+1:end,k] = τ
     end
     return (L=L, U=U, p=p, q=q)

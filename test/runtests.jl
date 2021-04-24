@@ -81,6 +81,7 @@ p = u"g/m/s^2"
 end
 
 @testset "LU with full pivoting" begin
+    # Example from LinearAlgebra.lu
     A = [4 3; 6 3]
     F = UnitfulBuckinghamPi.lu_pq(A)
     L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
@@ -88,25 +89,47 @@ end
     @test (F.L == L) && (F.U == U) && (F.p == p) && (F.q == q)
     @test L * U == A[p, q]
 
+    # Singular rectangular wide matrix for which regular `LinearAlgebra.lu` fails
     A = reshape(collect(1:12),3,4)
     L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
     @test L * U == A[p, q]
     @test rank(A) == rank(U) == 2
 
+    # Same but with Rational{Int} eltype
     A = convert.(Rational, reshape(collect(1:12),3,4))
     L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
     @test L * U == A[p, q]
     @test (L isa Matrix{Rational{Int64}}) && (U isa Matrix{Rational{Int64}})
 
-    A = complex(reshape(collect(1.0:12.0),3,4))
+    # Tall matrix version
+    A = convert.(Rational, reshape(collect(1:12),4,3))
+    L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
+    @test L * U == A[p, q]
+    @test U == [
+        12//1   4//1   8//1;
+        0//1  -2//1  -1//1;
+        0//1   0//1   0//1;
+        0//1   0//1   0//1;
+    ]
+
+    # Complex{Int} version
+    A = complex(reshape(collect(1:12),3,4))
     L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
     @test L * U == A[p, q]
     @test (L isa Matrix{Complex{Float64}}) && (U isa Matrix{Complex{Float64}})
 
+    # Complex{Float} version
+    A = complex(reshape(collect(1.0:12.0),3,4))
+    L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
+    @test L * U == A[p, q]
+    @test (L isa Matrix{Complex{Float64}}) && (U isa Matrix{Complex{Float64}})
+    
+    # SVD values  very far apart, for which `LinearAlgebra.rank` fails
     A = [1 1; typemax(Int64)//2 1]
     L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
     @test L * U == A[p, q]
 
+    # Singular case associated with the second Reynolds number example above
     A = convert.(Rational,[-1 0 -2 -1; 0 1 1 1; 1 -3 -1 -1])
     L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
     @test U == [
@@ -114,10 +137,23 @@ end
         0//1  -2//1 -1//1 -1//1;
         0//1  0//1  1//3  0//1
     ]
+
+    # Complex{Int} version, with round-offs
     A = convert.(Complex,[-1 0 -2 -1; 0 1 1 1; 1 -3 -1 -1])
     L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
+    @test (L isa Matrix{Complex{Float64}}) && (U isa Matrix{Complex{Float64}})
     @test U ≈ [
         -3.0+0.0im -1.0+0.0im  -1.0+0.0im 1.0+0.0im;
         0.0+0.0im  -2.0+0.0im -1.0+0.0im -1.0+0.0im;
         0.0+0.0im   0.0+0.0im  0.333333+0.0im  0.0+0.0im] (atol = 0.00001)
+
+    # Random wide matrix
+    A = rand(7,11)
+    L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
+    @test L * U ≈ A[p,q]
+
+    # Random tall matrix
+    A = rand(11,7)
+    L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
+    @test L * U ≈ A[p,q]
 end
