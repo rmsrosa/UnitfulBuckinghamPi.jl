@@ -19,7 +19,7 @@ u = u"m/s"
 μ = u"g/m/s"
 p = u"g/m/s^2"
 
-@testset "Test" begin
+@testset "UnitfulBuckinghamPi" begin
     # Set and check parameters
     @setparameters ℓ g m T θ
     @test UnitfulBuckinghamPi.param_symbols == [:ℓ, :g, :m, :T, :θ]
@@ -27,7 +27,7 @@ p = u"g/m/s^2"
 
     # Check adimensional groups as String eltype
     Π = pi_groups(:String)
-    @test Π[1] == "ℓ^(-1//2)*g^(1//2)*T^(1//1)"
+    @test Π[1] == "g^(1//2)*ℓ^(-1//2)*T^(1//1)"
     @test Π[2] == "θ^(1//1)"
 
     # Set and check parameters
@@ -35,7 +35,7 @@ p = u"g/m/s^2"
     @test UnitfulBuckinghamPi.param_values == [u"m", 9.8u"m/s^2", u"g", u"s", u"NoDims"]
     # Check adimensional groups as Expr eltype
     Π = pi_groups()
-    @test Π[1] == :(ℓ ^ (-1 // 2) * g ^ (1 // 2) * τ ^ (1 // 1))
+    @test Π[1] == :(g ^ (1 // 2) * ℓ ^ (-1 // 2) * τ ^ (1 // 1))
     @test Π[2] == :(θ ^ (1 // 1))
     # Test evaluating expressions
     @test eval(Π[1]) ≈ 3.1304951684997055
@@ -65,7 +65,7 @@ p = u"g/m/s^2"
 
     # Check singularity in the LU decomposition
     @setparameters u ρ μ p
-    @test pi_groups() == [:(u ^ (-2 // 1) * ρ ^ (-1 // 1) * p ^ (1 // 1))]
+    @test pi_groups() == [:(ρ ^ (1 // 2) * p ^ (-1 // 2) * u ^ (1 // 1))]
     @setparameters u ρ p μ
     @test_throws LinearAlgebra.SingularException pi_groups()
 
@@ -74,4 +74,32 @@ p = u"g/m/s^2"
     @test_throws ArgumentError pi_groups(:NotImplemented)
     @test_throws MethodError @setparameters 1
     @test_throws ArgumentError @setparameters s
+end
+
+@testset "LU with full pivoting" begin
+    A = [4 3; 6 3]
+    F = UnitfulBuckinghamPi.lu_pq(A)
+    L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
+    @test L ≈ [1.0 0.0; 0.666667 1.0] (atol = 0.00001)
+    @test (F.L == L) && (F.U == U) && (F.p == p) && (F.q == q)
+    @test L * U == A[p, q]
+
+    A = reshape(collect(1:12),3,4)
+    L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
+    @test L * U == A[p, q]
+    @test rank(A) == rank(U) == 2
+
+    A = convert.(Rational, reshape(collect(1:12),3,4))
+    L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
+    @test L * U == A[p, q]
+    @test (L isa Matrix{Rational{Int64}}) && (U isa Matrix{Rational{Int64}})
+
+    A = complex(reshape(collect(1.0:12.0),3,4))
+    L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
+    @test L * U == A[p, q]
+    @test (L isa Matrix{Complex{Float64}}) && (U isa Matrix{Complex{Float64}})
+
+    A = [1 1; typemax(Int64)//2 1]
+    L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
+    @test L * U == A[p, q]
 end

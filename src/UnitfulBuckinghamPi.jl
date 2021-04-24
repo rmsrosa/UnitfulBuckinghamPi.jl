@@ -164,6 +164,140 @@ function parameterdimensionmatrix()
 end
 
 """
+    lu_pq(A::AbstractMatrix)
+
+Compute the LU factorization of `A` with full pivoting.
+
+Output is a `NamedTuple`, say `F=lu_pq(A)`, whose fields are
+* `F.L`: `L` (lower triangular) part of the factorization
+* `F.U`: `U` (upper triangular) part of the factorization
+* `p`: row permutation `Vector`
+* `q`: column permutation `Vector`
+
+Factorization yields the identity `F.L * F.U == A[F.p, F.q]`.
+
+# Examples
+
+```jldoctest
+julia> A = [4 3; 6 3]
+2×2 Matrix{Int64}:
+ 4  3
+ 6  3
+
+julia> F = lu_pq(A)
+(L = [1.0 0.0; 0.6666666666666666 1.0], U = [6.0 3.0; 0.0 1.0], p = [2, 1], q = [1, 2])
+
+julia> F.L * F.U == A[F.p, F.q]
+true
+
+julia> L, U, p, q = lu_pq(A)
+(L = [1.0 0.0; 0.6666666666666666 1.0], U = [6.0 3.0; 0.0 1.0], p = [2, 1], q = [1, 2])
+
+julia> L * U == A[p, q]
+true
+
+julia> A = reshape(collect(1:12),3,4)
+3×4 Matrix{Int64}:
+ 1  4  7  10
+ 2  5  8  11
+ 3  6  9  12
+
+julia> L, U, p, q = lu_pq(A)
+(L = [1.0 0.0 0.0; 0.8333333333333334 1.0 0.0; 0.9166666666666666 0.5 1.0], U = [12.0 3.0 9.0 6.0; 0.0 -1.5 -0.5 -1.0; 0.0 0.0 0.0 0.0], p = [3, 1, 2], q = [4, 1, 3, 2])
+
+julia> L * U == A[p, q]
+true
+
+julia> rank(A) == rank(U) == 2
+true
+
+julia> A = convert.(Rational, reshape(collect(1:12),3,4))
+3×4 Matrix{Rational{Int64}}:
+ 1//1  4//1  7//1  10//1
+ 2//1  5//1  8//1  11//1
+ 3//1  6//1  9//1  12//1
+
+julia> L, U, p, q = lu_pq(A);
+
+julia> U
+3×4 Matrix{Rational{Int64}}:
+ 12//1   3//1   9//1   6//1
+  0//1  -3//2  -1//2  -1//1
+  0//1   0//1   0//1   0//1
+
+julia> A = complex(reshape(collect(1.0:12.0),3,4))
+3×4 Matrix{ComplexF64}:
+ 1.0+0.0im  4.0+0.0im  7.0+0.0im  10.0+0.0im
+ 2.0+0.0im  5.0+0.0im  8.0+0.0im  11.0+0.0im
+ 3.0+0.0im  6.0+0.0im  9.0+0.0im  12.0+0.0im
+
+julia> L, U, p, q = lu_pq(A);
+
+julia> U
+3×4 Matrix{ComplexF64}:
+ 12.0+0.0im   3.0+0.0im           9.0+0.0im   6.0+0.0im
+  0.0+0.0im  -1.5+0.0im          -0.5+0.0im  -1.0+0.0im
+  0.0+0.0im   0.0+0.0im  -4.44089e-16+0.0im   0.0+0.0im
+
+julia> L * U == A[p, q]
+true
+
+julia> A = [1 1; typemax(Int64)//2 1]
+2×2 Matrix{Rational{Int64}}:
+                   1//1  1//1
+ 9223372036854775807//2  1//1
+
+julia> L, U, p, q = lu_pq(A);
+
+julia> U
+2×2 Matrix{Rational{Int64}}:
+ 9223372036854775807//2                    1//1
+                   0//1  9223372036854775805//9223372036854775807
+
+julia> L * U == A[p, q]
+true
+```
+
+# References:
+
+* Gene H. Golub, Charles F. Van Loan, Matrix Computations, Johns Hopkins 
+Studies in Mathematical Sciences, 3rd Edition, 1996.
+* Lloyd N. Trefethen, David Bau III, Numerical Linear Algebra.
+First Edition, SIAM, 1997.
+
+"""
+function lu_pq(A::AbstractMatrix{T}) where T <: Number
+    if T <: Integer
+        A = float(A)
+    end
+    tol = T <: Rational ? 0 : min(size(A)...)*eps(real(float(one(T))))
+    U = copy(A)
+    (n,m) = size(U)
+    L = diagm(ones(eltype(A),n))
+    p = collect(1:n)
+    q = collect(1:m)
+    for k =1:min(n,m)-1
+        i,j = k-1 .+ Tuple(argmax(abs.(U[k:end,k:end])))
+        abs(U[i,j]) < tol && break
+        if i > k
+            p[k], p[i] = p[i], p[k]
+            U[k,:], U[i,:] = U[i,:], U[k,:]
+        end
+        if j > k
+            q[k], q[j] = q[j], q[k]
+            U[:,k], U[:,j] = U[:,j], U[:,k]
+        end
+        τ = U[k+1:end,k] / U[k,k]
+        U[k+1:end,k:end] -=  τ .* U[k,k:end]'
+        if i > k
+            τ[1], τ[i-k] = τ[i-k], τ[1]
+        end
+        L[k+1:end,k] = τ
+    end
+    return (L=L, U=U, p=p, q=q)
+end
+
+"""
     rationalnullspace(mat)
 
 Return a matrix whose columns span the null space of the matrix `mat`.
@@ -179,7 +313,8 @@ function rationalnullspace(mat)
         ohv[i] = 1//1
         return ohv
     end
-    mat_lu = lu(mat, check=false) 
+    # mat_lu = lu(mat, check=false) 
+    mat_lu = lu_pq(mat)
     mat_nrows, mat_ncols = size(mat)
     mat_rank = rank(mat)
     mat_null = fill(0//1, mat_ncols, mat_ncols - mat_rank)
@@ -187,7 +322,7 @@ function rationalnullspace(mat)
         mat_null[1:mat_rank,j] = -(mat_lu.U[:,1:mat_rank] \ (mat_lu.U * ivec(mat_ncols, mat_rank+j)))
         mat_null[mat_rank+j,j] = 1//1
     end
-    return mat_null
+    return mat_null, mat_lu.q
 end
 
 """
@@ -233,8 +368,8 @@ julia> pi_groups(:String)
 """
 function pi_groups(type::Symbol = :Expr)
     pdmat = parameterdimensionmatrix()
-    pdmat_null = rationalnullspace(pdmat)
-    groups = [join(["$p^($a)" for (p,a) in zip(param_symbols, col) if !iszero(a)], "*") for col in eachcol(pdmat_null)]
+    pdmat_null, q = rationalnullspace(pdmat)
+    groups = [join(["$p^($a)" for (p,a) in zip(param_symbols[q], col) if !iszero(a)], "*") for col in eachcol(pdmat_null)]
     type == :String && return groups
     type == :Expr && return [Meta.parse(group) for group in groups]
     throw(
