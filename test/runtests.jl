@@ -17,7 +17,6 @@ s = "blah"
 u = u"m/s"
 ρ = u"g/m^3"
 μ = u"g/m/s"
-p = u"g/m/s^2"
 
 @testset "UnitfulBuckinghamPi" begin
     # Set and check parameters
@@ -66,12 +65,12 @@ p = u"g/m/s^2"
     @test size(Π) == (0,)
 
     # Check singularity in the LU decomposition
-    @setparameters u ρ μ p
+    @setparameters u ρ μ ℓ
     @test pi_groups() == 
-        [:(ρ ^ (1 // 2) * p ^ (-1 // 2) * u ^ (1 // 1))]
-    @setparameters u ρ p μ
+        [:(ρ ^ (1 // 1) * u ^ (1 // 1) * μ ^ (-1 // 1) * ℓ ^ (1 // 1))]
+    @setparameters ℓ ρ μ u
     @test pi_groups() == 
-        [:(ρ ^ (1 // 2) * p ^ (-1 // 2) * u ^ (1 // 1))]
+        [:(ρ ^ (1 // 1) * μ ^ (-1 // 1) * ℓ ^ (1 // 1) * u ^ (1 // 1))]
 
     # Test errors
     @setparameters ℓ g m τ θ
