@@ -15,7 +15,7 @@ const ParamTypes =
     Union{Unitful.Quantity, Unitful.FreeUnits, Unitful.Dimensions, Number}
 
 """
-    param_simbols = Vector{Symbol}()
+    param_symbols = Vector{Symbol}()
 
 Vector containing the list of symbols of the registered parameters.
 """
@@ -36,8 +36,8 @@ param_values = Vector{ParamTypes}()
 Clear the parameter register.
 """
 function clearregister()
-    intersect!(param_symbols, Vector{Symbol}())
-    intersect!(param_values, Vector{ParamTypes}())
+    empty!(param_symbols)
+    empty!(param_values)
 end
 
 """
