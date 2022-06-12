@@ -146,7 +146,7 @@ Another classical example of adimensional group is the Reynolds number.
 
 What could characterize how complicate a fluid flow is? We should certainly consider the parameters characterizing the fluid, such as *density* and *viscosity*. Then, there is the *velocity* the fluid moves. Less obvious is the *lenght scale* we consider, which we can consider as a length scale associated with the injection of energy into the system, such as the width of an obstacle, the distance between the walls of channel, the distance between the bars of a grids, and so on.
 
-With these parameters, the only possible adimensional groups is the Reynolds number (or power of it).
+With these parameters, the only possible adimensional group is the Reynolds number (or powers of it).
 
 ```julia
 julia> ρ = u"g/m^3"
