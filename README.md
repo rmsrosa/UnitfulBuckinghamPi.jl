@@ -16,7 +16,7 @@ Let us consider a couple of examples.
 
 We start with the period of a simple pendulum.
 
-The parameters taken for consideration are the *length* of the rod, the *mass* of the bob, the *acceleration of gravity*, the *angle* of the rod with respect to the downards vertical direction, and the *period* of the swinging pendulum.
+The parameters taken for consideration are the *length* of the rod, the *mass* of the bob, the *acceleration of gravity*, the *angle* of the rod with respect to the downwards vertical direction, and the *period* of the swinging pendulum.
 
 We define these parameters as `Unitful.FreeUnits`. Except for the acceleration of gravity, which is a constant and is given as a `Unitful.Quantity` value, and for the period, for which we do not associate any unit, only a dimension, just for fun.
 
