@@ -63,9 +63,15 @@ julia> Π = pi_groups(:Expr)
 
 There are two adimensional groups, `Π[1]` and `Π[2]`.
 
-One can use [korsbo/Latexify.jl](https://github.com/korsbo/Latexify.jl) to display the groups in Latex format, but be aware that Latexify doesn't properly render Rational numbers when they appear as powers of another quantity. So, one needs to replace the double backslashes with a single backslash for a proper display, like with `latexify(replace(Π_str[1], "//" => "/"))`. Doing so, we obtain the image
+One can use [korsbo/Latexify.jl](https://github.com/korsbo/Latexify.jl) to display the groups in Latex format, simply with
+```julia
+julia> using Latexify
 
-![pendulum adimensional Pi group](img/pendulum_pi_group.png)
+julia> latexify(Π_str[1])
+L"$g^{\frac{1}{2}} \cdot \ell^{\frac{-1}{2}} \cdot T^{\frac{1}{1}}$"
+```
+
+This produces $g^{\frac{1}{2}} \cdot \ell^{\frac{-1}{2}} \cdot T^{\frac{1}{1}}$.
 
 With the parameters above, one cannot evaluate the adimensional group since that would amount to multiplying Unitful.FreeUnits or Unitful.Quantities like the Unitful.Dimensions parameter `T`. That i not allowed by `Unitful.jl`. One can solve that, however, by substituting `T` with a unit. Then, we can either parse each element in the vector of strings returned by `pi_groups_str()` and evaluate that or we can use `pi_groups()` to obtain directly the corresponding expressions and evaluate the expressions.
 
@@ -119,6 +125,21 @@ julia> pi_groups()
  :(ℓ ^ (-1 // 2) * g ^ (-1 // 2) * v ^ (1 // 1))
 ```
 
+With [korsbo/Latexify.jl](https://github.com/korsbo/Latexify.jl), these yield
+
+```julia
+julia> latexify.(pi_groups())
+3-element Vector{LaTeXStrings.LaTeXString}:
+ L"$g^{\frac{1}{2}} \cdot \ell^{\frac{-1}{2}} \cdot \tau^{\frac{1}{1}}$"
+ L"$\theta^{\frac{1}{1}}$"
+ L"$g^{\frac{-1}{2}} \cdot \ell^{\frac{-1}{2}} \cdot v^{\frac{1}{1}}$"
+```
+
+which look like
+* $g^{\frac{1}{2}} \cdot \ell^{\frac{-1}{2}} \cdot \tau^{\frac{1}{1}}$
+* $\theta^{\frac{1}{1}}$
+* $g^{\frac{-1}{2}} \cdot \ell^{\frac{-1}{2}} \cdot v^{\frac{1}{1}}$
+
 ### Reynolds number
 
 Another classical example of adimensional group is the Reynolds number.
@@ -154,11 +175,14 @@ julia> pi_groups()
 
 Again, we can use [korsbo/Latexify.jl](https://github.com/korsbo/Latexify.jl) to display the adimensional group in Latex format:
 
-![Reynolds number Pi group](img/reynoldsnumber_pi_group.png)
+$\rho^{\frac{1}{1}} \cdot \mu^{\frac{-1}{1}} \cdot u^{\frac{1}{1}} \cdot \ell^{\frac{1}{1}}$
 
 One can recognize this as the Reynolds number
 
-![Reynolds number](img/reynoldsnumber.png)
+$$
+\mathrm{Re} = \frac{\rho u \ell}
+{\mu}
+$$
 
 ## The internals
 
