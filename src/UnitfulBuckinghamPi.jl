@@ -6,18 +6,29 @@ using LinearAlgebra
 export @setparameters, @addparameters, pi_groups
 
 """
-    param_simbols = Vector{Symbol}()
+    ParamTypes
+
+Type `Union{...}` with the allowed types for the parameters: `Unitful.Quantity`,
+`Unitful.Units`, `Unitful.Dimensions`, and `Number`.
+"""
+const ParamTypes = 
+    Union{Unitful.Quantity, Unitful.FreeUnits, Unitful.Dimensions, Number}
+
+"""
+    param_symbols = Vector{Symbol}()
 
 Vector containing the list of symbols of the registered parameters.
 """
 param_symbols = Vector{Symbol}()
 
 """
-    param_values = Vector{Union{Unitful.Quantity, Unitful.FreeUnits, Unitful.Dimensions, Number}}()
+    param_values = Vector{ParamTypes}()
 
 Vector containing the list of values of the registered parameters.
+
+See [`ParamTypes`](@ref) for the allowed parameter types.
 """
-param_values = Vector{Union{Unitful.Quantity, Unitful.FreeUnits, Unitful.Dimensions, Number}}()
+param_values = Vector{ParamTypes}()
 
 """
     clearregister()
@@ -25,8 +36,8 @@ param_values = Vector{Union{Unitful.Quantity, Unitful.FreeUnits, Unitful.Dimensi
 Clear the parameter register.
 """
 function clearregister()
-    intersect!(param_symbols, Vector{Symbol}())
-    intersect!(param_values, Vector{Union{Unitful.Quantity, Unitful.FreeUnits, Unitful.Dimensions, Number}}())
+    empty!(param_symbols)
+    empty!(param_values)
 end
 
 """
@@ -35,7 +46,7 @@ end
 Add parameter with symbol `x` and value `y` to the register.
 """
 function addparameter(x,y)
-    y isa Union{Unitful.Quantity, Unitful.FreeUnits, Unitful.Dimensions, Number} || 
+    y isa ParamTypes || 
         throw(ArgumentError(
             "Parameter should be either a Unitful.Quantity, Unitful.FreeUnits,"
             * "Unitful.Dimensions or Number"))
