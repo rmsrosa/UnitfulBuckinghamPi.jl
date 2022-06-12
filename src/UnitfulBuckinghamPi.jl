@@ -272,6 +272,19 @@ julia> U
 
 julia> L * U == A[p, q]
 true
+
+julia> A = reshape( 1 .//collect(BigInt, 10001:10012), 4, 3)
+4×3 Matrix{Rational{BigInt}}:
+ 1//10001  1//10005  1//10009
+ 1//10002  1//10006  1//10010
+ 1//10003  1//10007  1//10011
+ 1//10004  1//10008  1//10012
+
+julia> L, U, p, q = lu_pq(A);
+
+julia> L * U == A[p, q]
+true
+
 ```
 
 # References:

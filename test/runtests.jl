@@ -123,7 +123,7 @@ end
     @test L * U == A[p, q]
     @test (L isa Matrix{Complex{Float64}}) && (U isa Matrix{Complex{Float64}})
     
-    # SVD values  very far apart, for which `LinearAlgebra.rank` fails
+    # SVD values very far apart, for which `LinearAlgebra.rank` fails
     A = [1 1; typemax(Int64)//2 1]
     L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
     @test L * U == A[p, q]
@@ -155,4 +155,10 @@ end
     A = rand(11,7)
     L, U, p, q = UnitfulBuckinghamPi.lu_pq(A)
     @test L * U ≈ A[p,q]
+
+    # Rational{BigInt} matrix that overflows with Rational{Int}
+    A = reshape(1 .//collect(10001:10012), 4, 3)
+    @test_throws OverflowError UnitfulBuckinghamPi.lu_pq(A)
+    L, U, p, q = UnitfulBuckinghamPi.lu_pq(convert.(Rational{BigInt}, A))
+    @test L * U == A[p, q]
 end
