@@ -1,7 +1,7 @@
 name = "UnitfulBuckinghamPi"
 uuid = "a5a2160c-bd99-4b31-b024-0885c747111f"
 authors = ["Ricardo Rosa <rmsrosa@gmail.com>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
