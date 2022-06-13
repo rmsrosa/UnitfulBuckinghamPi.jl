@@ -174,7 +174,7 @@ function parameterdimensionmatrix()
 end
 
 """
-    lu_pq(A::AbstractMatrix)
+    lu_pq(A::Matrix)
 
 Compute the LU factorization of `A` with full pivoting.
 
@@ -299,7 +299,7 @@ First Edition, SIAM, 1997.
 
 [^pinv]: [LinearAlgebra.pinv](https://github.com/JuliaLang/julia/blob/master/stdlib/LinearAlgebra/src/dense.jl#L1362)
 """
-function lu_pq(A::AbstractMatrix{T}) where T <: Number
+function lu_pq(A::Matrix{T}) where T <: Number
     tol = T <: Rational ? 0//1 : min(size(A)...)*eps(real(float(one(T))))
     U = copy(A)
     (n,m) = size(U)
@@ -324,8 +324,8 @@ function lu_pq(A::AbstractMatrix{T}) where T <: Number
     end
     return (L=L, U=U, p=p, q=q)
 end
-lu_pq(A::AbstractMatrix{T}) where T <: Integer = lu_pq(float(A))
-lu_pq(A::AbstractMatrix{Complex{T}}) where T <: Integer = lu_pq(convert.(float(Complex{Int}),A))
+lu_pq(A::Matrix{T}) where T <: Integer = lu_pq(float(A))
+lu_pq(A::Matrix{Complex{T}}) where T <: Integer = lu_pq(convert.(float(Complex{Int}),A))
 
 """
     lu_nullspace(mat)
