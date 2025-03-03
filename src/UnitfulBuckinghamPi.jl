@@ -345,7 +345,7 @@ function lu_nullspace(mat)
         return ohv
     end
     mat_lu = lu_pq(mat)
-    mat_nrows, mat_ncols = size(mat)
+    mat_ncols = size(mat, 2)
     mat_rank = rank(mat)
     mat_null = fill(zero(eltype(mat)), mat_ncols, mat_ncols - mat_rank)
     for j in 1:mat_ncols-mat_rank
