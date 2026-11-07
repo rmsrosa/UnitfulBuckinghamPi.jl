@@ -1,12 +1,20 @@
 # UnitfulBuckinghamPi
 
-![Main Tests Workflow Status](https://github.com/rmsrosa/UnitfulBuckinghamPi.jl/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/rmsrosa/UnitfulBuckinghamPi.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/rmsrosa/UnitfulBuckinghamPi.jl) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![GitHub repo size](https://img.shields.io/github/repo-size/rmsrosa/UnitfulCurrencies.jl) ![Lifecycle Experimental](https://img.shields.io/badge/lifecycle-experimental-orange) [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
+![Main Tests Workflow Status](https://github.com/rmsrosa/UnitfulBuckinghamPi.jl/actions/workflows/ci.yml/badge.svg) [![codecov](https://codecov.io/gh/rmsrosa/UnitfulBuckinghamPi.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/rmsrosa/UnitfulBuckinghamPi.jl) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![GitHub repo size](https://img.shields.io/github/repo-size/rmsrosa/UnitfulBuckinghamPi.jl) ![Lifecycle Maturing](https://img.shields.io/badge/lifecycle-maturing-blue) [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 
 This package is for solving for the adimensional Pi groups (or Π groups) in a given list of parameters, according to the [Buckingham-Pi Theorem](https://en.wikipedia.org/wiki/Buckingham_π_theorem).
 
 We use the package [Unitful.jl](https://github.com/PainterQubits/Unitful.jl) in order to facilitate the construction of the parameters and to easily handle the dimensions associated with each parameter.
 
 This package is inspired by a similar package written in python: [ian-r-rose/buckinghampy](https://github.com/ian-r-rose/buckinghampy).
+
+## Installation
+
+This package requires Julia ≥ 1.10. It is registered, so it can be installed from the Julia REPL by typing `]` and *adding* it:
+
+```julia
+pkg> add UnitfulBuckinghamPi
+```
 
 ## Examples
 
